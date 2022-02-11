@@ -49,8 +49,7 @@ Enigma::~Enigma() {
 
 
 void Enigma::encode(char ch) {
-  plugboard->readAndComputeSignal(ch);
-  plugboard->sendToNextComponent();
+  int encoding = plugboard->readAndComputeSignal(ch);
 
   if (numberOfRotors>0) {
     Rotor* currRotor = rightmostRotorPtr;
@@ -59,25 +58,25 @@ void Enigma::encode(char ch) {
     
     // forward rotor pass from right to left
     while (currRotor->getLeftPtr() != nullptr) {
-      currRotor->mapRightToLeft();
+      encoding = currRotor->mapRightToLeft(encoding);
       currRotor = currRotor->getLeftPtr();
     }
 
     // send and receive mapped signal from reflector
-    currRotor->mapRightToLeft();
-    reflector->reflectToNextComponent();
+    encoding = currRotor->mapRightToLeft(encoding);
+    encoding = reflector->reflectToNextComponent(encoding);
     
     // backward rotor pass from left to right
     while (currRotor != nullptr) {
-      currRotor->mapLeftToRight();
+      encoding = currRotor->mapLeftToRight(encoding);
       currRotor = currRotor->getRightPtr();
     }
   }
   else {
     // 0 rotor case
-    reflector->reflectToNextComponent();
+    encoding = reflector->reflectToNextComponent(encoding);
   }
-  plugboard->outputSignal();
+  plugboard->outputSignal(encoding);
 }
 
 
@@ -85,13 +84,13 @@ void Enigma::encode(char ch) {
 /*---------------------------Reflector related functions------------------------------*/
 /*initialise the refelctor with the reflector config file*/
 void Enigma::initReflector(char** argv) {
-  reflector = new Reflector(leftmostRotorPtr);
+  reflector = new Reflector();
   reflector->initConfig(argv[2]);
 }
 /*---------------------------Plugboard related function-------------------------------*/
 /*initialise the plugboard with the plugboard config file*/
 void Enigma::initPlugboard(char** argv) {
-  plugboard = new Plugboard(rightmostRotorPtr, reflector);
+  plugboard = new Plugboard();
   plugboard->initConfig(argv[1]);
 }
 /*-----------------------------Rotors related functions-------------------------------*/
