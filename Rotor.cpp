@@ -81,7 +81,7 @@ int Rotor::mapRightToLeft(int code) {
   int i = (code + rotationsPerformed)%26;
   code = (code + shifts[i])%26;
   // Wrap around(+26) if negative output
-  return (code+26) ? (code<0) : (code);
+  return  (code<0) ? (code+26) : (code);
 }
 
 /*Getter functions to get the pointer to the next or prev rotor*/
