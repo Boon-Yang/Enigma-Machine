@@ -5,14 +5,7 @@
 
 using namespace std;
 
-/*Constructor for plugboard*/
-Plugboard::Plugboard(Rotor* connectedRotorPtr, Reflector* connectedReflectorPtr)
-  :connectedRotorPtr(connectedRotorPtr), connectedReflectorPtr(connectedReflectorPtr) {
-  if (connectedRotorPtr != nullptr)
-    connectedRotorPtr->connectedPlugboardPtr = this;
-  else if (connectedReflectorPtr != nullptr)
-    connectedReflectorPtr->connectedPlugboardPtr = this;
-}
+
 
 /*Initialise the plugboard config*/
 void Plugboard::initConfig(char const* filename) {
@@ -29,24 +22,15 @@ void Plugboard::initConfig(char const* filename) {
   in.close();
 }
 
-/*Send the mapped signal to the next component, either a rotor or a reflector*/
-void Plugboard::sendToNextComponent() {
-  if (connectedRotorPtr != nullptr)
-    connectedRotorPtr->charBeforeMapping = charAfterMapping;
-  else if (connectedReflectorPtr != nullptr)
-    connectedReflectorPtr->charBeforeMapping = charAfterMapping;
-}
 
 /*Read in from the input keyboard and map appropriately*/
-void Plugboard::readAndComputeSignal(char ch){
-  charBeforeMapping = (int)ch-'A';
-  charAfterMapping = mappings[charBeforeMapping];
+int Plugboard::readAndComputeSignal(char ch){
+  return mappings[(int)ch-'A'];
 }
 
 /*Output to the outputboard*/
-void Plugboard::outputSignal() {
-  charAfterMapping = mappings[charBeforeMapping];
-  cout<<(char)(charAfterMapping+'A');
+void Plugboard::outputSignal(int code) {
+  cout<<(char)( mappings[code]+'A');
 }
 
 

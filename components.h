@@ -9,8 +9,6 @@ class Rotor {
   int currentNotchPositions[26] = {0};
 
   /*Internal Mappings and the state of encoding before and after mappping*/
-  int charBeforeMapping;
-  int charAfterMapping;
   int shifts[26];
 
   int rotorId = 0; //To facilitate setting up config
@@ -18,13 +16,9 @@ class Rotor {
   /*Pointers to the connected components, all of these components are optional*/
   Rotor* rightRotorPtr = nullptr;
   Rotor* leftRotorPtr = nullptr;
-  Reflector* connectedReflectorPtr = nullptr;
-  Plugboard* connectedPlugboardPtr = nullptr;
 
 public:
   /*Gives permission to plugboard and reflector to change the state of characters*/
-  friend class Plugboard;
-  friend class Reflector;
   
   /*Rotor Constructor*/
   Rotor(int rotorId, Rotor* rightRotorPtr=nullptr);
@@ -36,10 +30,10 @@ public:
   void rotate(int numberOfRotations, bool settingUp);
 
   /*backward encoding*/
-  void mapLeftToRight();
+  int mapLeftToRight(int code);
 
   /*forward encoding*/
-  void mapRightToLeft();
+  int mapRightToLeft(int ch);
 
   /*Getters for the left and right rotor pointer, used when connecting the rotors in Enigma*/
   Rotor* getRightPtr();
@@ -53,24 +47,15 @@ class Reflector {
 
   /*mappings and state of characters before and after mapping*/
   int mappings[26];
-  int charBeforeMapping;
-  int charAfterMapping;
 
-  /*Pointers to connected components, both rotor and plugboard(zero rotor case) are optional*/
-  Rotor* connectedRotorPtr = nullptr;
-  Plugboard* connectedPlugboardPtr = nullptr;
 public:
-  friend class Rotor;
-  friend class Enigma;
-  friend class Plugboard;
-  /*Constructor for reflector*/
-  Reflector(Rotor* connectedRotorPtr);
+
 
   /*Helps to initiate the configuration of a reflector*/
   void initConfig(char* rfFilename);
 
   /*execute the reflection*/
-  void reflectToNextComponent();
+  int reflectToNextComponent(int code);
 };
 
 //------------------------------Plugboard-------------------------------------------
@@ -78,31 +63,16 @@ class Plugboard {
   /*initialise mappings with default case without plugcables*/
   int mappings[26] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,14, 15, 16, 17, 18, 19, 20, 21, 22,23, 24, 25};
 
-  /*state of encodings before and after encoding*/
-  int charBeforeMapping;
-  int charAfterMapping;
-
-  /*Pointers to rotor and reflector (in case of zero rotor)*/
-  Rotor* connectedRotorPtr = nullptr;
-  Reflector* connectedReflectorPtr = nullptr;
-
 public:
-  friend class Rotor;
-  friend class Reflector;
-  friend class Enigma;
-
-  /*constructor of plugboard*/
-  Plugboard(Rotor* connectedRotor=nullptr, Reflector* connectedReflector=nullptr);
-
   /*helps to set up the configuration of plugborad*/
   void initConfig(char const* filename);
 
   /*send the mapped encoding to either rotor or reflector*/
-  void sendToNextComponent();
+  void sendToNextComponent(int encoding);
 
   /*Input(from the input keyboard) and output(encoding to the output board)*/
-  void readAndComputeSignal(char ch);
-  void outputSignal();
+  int readAndComputeSignal(char ch);
+  void outputSignal(int code);
 };
 
 //--------------------------------Enigma-------------------------------------------

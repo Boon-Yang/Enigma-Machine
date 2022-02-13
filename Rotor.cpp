@@ -60,7 +60,7 @@ void Rotor::rotate(int numberOfRotations, bool settingUp) {
 }
 
 /*shift[adj_i] corresponds to the shift AFTER rotation, where adj_i is the adjusted index*/
-void Rotor::mapLeftToRight() {
+int Rotor::mapLeftToRight(int code) {
   int toFind; // the char on the LHS of the rotor ie the char that we need to find
   int adj_i; // relative frame of reference to deal with rotations performed
   for (int i=0; i<26; i++) {
@@ -68,35 +68,20 @@ void Rotor::mapLeftToRight() {
     toFind = (i + shifts[adj_i])%26;
     if (toFind < 0)
       toFind += 26;
-    if (toFind==charBeforeMapping) {
-      charAfterMapping = i;
+    if (toFind==code) {
+      code = i;
+      break;
     }
   }
-
-  //deal with next rotor here
-  if (rightRotorPtr != nullptr) {
-    rightRotorPtr->charBeforeMapping = charAfterMapping;
-  }
-  //deal with next plugboard
-  else if (connectedPlugboardPtr != nullptr) {
-    connectedPlugboardPtr->charBeforeMapping = charAfterMapping;
-  }
+  return code;
 }
 
 /*Maps character and send to the left rotor*/
-void Rotor::mapRightToLeft() {
-  int i = (charBeforeMapping + rotationsPerformed)%26;
-  charAfterMapping = (charBeforeMapping + shifts[i])%26;
-
+int Rotor::mapRightToLeft(int code) {
+  int i = (code + rotationsPerformed)%26;
+  code = (code + shifts[i])%26;
   // Wrap around(+26) if negative output
-  if (charAfterMapping<0)
-    charAfterMapping += 26;
-  if (leftRotorPtr != nullptr) {
-    leftRotorPtr->charBeforeMapping = charAfterMapping;
-  }
-  else if (connectedReflectorPtr != nullptr) {
-    connectedReflectorPtr->charBeforeMapping = charAfterMapping;
-  }
+  return  (code<0) ? (code+26) : (code);
 }
 
 /*Getter functions to get the pointer to the next or prev rotor*/
